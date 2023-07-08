@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type ChainingStrategyType string
@@ -209,6 +210,7 @@ func buildClauses(f any) ([]Clause, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		clauses[idx] = Clause{
 			Col: column,
 			Op:  operator,
@@ -252,6 +254,14 @@ func readValue(v reflect.Value) (any, error) {
 			args[i] = v.Index(i).String()
 		}
 		return args, nil
+
+	case reflect.Struct:
+		// not parsing (custom) structs at this time,
+		// with the only exception being the time.Time
+		if t, ok := v.Interface().(time.Time); ok {
+			return t, nil
+		}
+		return nil, fmt.Errorf("structs are not supported, only time.Time")
 
 	default:
 		return nil, fmt.Errorf("unsupported type: %v", v.Kind())

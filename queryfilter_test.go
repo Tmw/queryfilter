@@ -3,6 +3,7 @@ package queryfilter
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -120,6 +121,21 @@ func TestToSqlIsNotNull(t *testing.T) {
 	}
 }
 
+func TestToSqlWithDate(t *testing.T) {
+	type filter struct {
+		DueBy *time.Time `filter:"due,op=gt"`
+	}
+
+	now := time.Now()
+	f := filter{
+		DueBy: &now,
+	}
+
+	q, v, e := ToSql(f)
+	assert.Nil(t, e)
+	assert.Equal(t, "due > ?", q)
+	assert.ElementsMatch(t, []any{now}, v)
+}
 
 func TestToSqlInWrongType(t *testing.T) {
 	type filter struct {
