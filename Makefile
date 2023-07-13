@@ -22,3 +22,39 @@ ifeq ($(GOTESTSUM_PATH), )
 	@exit 1
 endif
 	@gotestsum --watch
+
+
+# examples
+.PHONY: example-sqlite
+example-sqlite:
+	@pushd examples/sqlite/ \
+		&& go run main.go \
+		&& popd
+
+.PHONY: example-mysql
+example-mysql:
+# start docker-compose and wait for mysql to be ready
+	@cd examples/mysql/ \
+		&& docker-compose up -d db --wait
+
+# run the example
+	@cd examples/mysql/ \
+		&& go run main.go \
+
+# stop docker-compose
+	@cd examples/mysql/ \
+		&& docker-compose down
+
+.PHONY: example-postgresql
+example-postgres:
+# start docker-compose and wait for postgresql to be ready
+	@cd examples/postgresql/ \
+		&& docker-compose up -d db --wait
+
+# run the example
+	@cd examples/postgresql/ \
+		&& go run main.go \
+
+# stop docker-compose
+	@cd examples/postgresql/ \
+		&& docker-compose down
