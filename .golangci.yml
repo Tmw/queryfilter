@@ -1,0 +1,32 @@
+run:
+  tests: false
+
+output:
+  format: line-number
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - errcheck
+    - exhaustive
+    - funlen
+    - gocognit
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - revive
+    - staticcheck
+    - typecheck
+    - unused
+
+linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+    check:
+      - switch
+      - map

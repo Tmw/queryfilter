@@ -116,9 +116,9 @@ func WithPlaceholderOffset(offset int) OptFn {
 	}
 }
 
-// ToSql takes a filter struct and returns a parameterized SQL string
+// ToSQL takes a filter struct and returns a parameterized SQL string
 // and its values in order to be applied in a query.
-func ToSql(f any, fns ...OptFn) (query string, args []any, err error) {
+func ToSQL(f any, fns ...OptFn) (query string, args []any, err error) {
 	opts := DefaultOpts()
 	for _, fn := range fns {
 		fn(opts)
@@ -129,28 +129,13 @@ func ToSql(f any, fns ...OptFn) (query string, args []any, err error) {
 		return "", nil, err
 	}
 
-	sql, args, err := toSql(clauses, opts)
+	sql, args, err := toSQL(clauses, opts)
 	sql = applyPlaceholders(sql, opts)
 
 	return sql, args, err
 }
 
-func applyPlaceholders(q string, opts *Opts) string {
-	switch opts.PlaceholderStrategy {
-	case PlaceholderStrategyQuestionmark:
-		return q
-
-	case PlaceholderStrategyColon:
-		return replace(q, opts.PlaceholderOffset, colonReplacer)
-
-	case PlaceholderStrategyDollar:
-		return replace(q, opts.PlaceholderOffset, dollarReplacer)
-	}
-
-	return ""
-}
-
-func toSql(clauses []Clause, opts *Opts) (string, []any, error) {
+func toSQL(clauses []Clause, opts *Opts) (string, []any, error) {
 	var (
 		segs []string
 		args []any
@@ -178,6 +163,21 @@ func toSql(clauses []Clause, opts *Opts) (string, []any, error) {
 
 	sep := fmt.Sprintf(" %s ", opts.ChainingStrategy)
 	return strings.Join(segs, sep), args, nil
+}
+
+func applyPlaceholders(q string, opts *Opts) string {
+	switch opts.PlaceholderStrategy {
+	case PlaceholderStrategyQuestionmark:
+		return replace(q, opts.PlaceholderOffset, defaultReplacer)
+
+	case PlaceholderStrategyColon:
+		return replace(q, opts.PlaceholderOffset, colonReplacer)
+
+	case PlaceholderStrategyDollar:
+		return replace(q, opts.PlaceholderOffset, dollarReplacer)
+	}
+
+	return ""
 }
 
 func buildClauses(f any) ([]Clause, error) {
@@ -238,6 +238,9 @@ func readValue(v reflect.Value) (any, error) {
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return v.Int(), nil
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return v.Uint(), nil
 
 	case reflect.Float32, reflect.Float64:
 		return v.Float(), nil

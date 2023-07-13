@@ -20,7 +20,7 @@ func TestToSqlSimpleTypes(t *testing.T) {
 		MinAge: &minAge,
 	}
 
-	q, v, e := ToSql(f)
+	q, v, e := ToSQL(f)
 	eq := `name = ? AND age > ?`
 	ev := []any{"bobby", int64(minAge)}
 
@@ -42,7 +42,7 @@ func TestToSqlWithSlice(t *testing.T) {
 		},
 	}
 
-	q, v, e := ToSql(f)
+	q, v, e := ToSQL(f)
 	eq := `color IN(?,?,?)`
 	ev := []any{"yellow", "orange", "hot-pink"}
 
@@ -60,7 +60,7 @@ func TestToSqlBetween(t *testing.T) {
 		PriceRange: &[]float64{10.21, 30.66},
 	}
 
-	q, v, e := ToSql(f)
+	q, v, e := ToSQL(f)
 	assert.Nil(t, e)
 	assert.Equal(t, "price BETWEEN ? AND ?", q)
 	assert.ElementsMatch(t, []float64{10.21, 30.66}, v)
@@ -85,7 +85,7 @@ func TestToSqlIsNull(t *testing.T) {
 
 	for _, c := range cases {
 		f := filter{TitleEmpty: c.v}
-		q, v, e := ToSql(f)
+		q, v, e := ToSQL(f)
 
 		assert.Nil(t, e)
 		assert.Equal(t, c.e, q)
@@ -113,7 +113,7 @@ func TestToSqlIsNotNull(t *testing.T) {
 
 	for _, c := range cases {
 		f := filter{TitleEmpty: c.v}
-		q, v, e := ToSql(f)
+		q, v, e := ToSQL(f)
 
 		assert.Nil(t, e)
 		assert.Equal(t, c.e, q)
@@ -131,7 +131,7 @@ func TestToSqlWithDate(t *testing.T) {
 		DueBy: &now,
 	}
 
-	q, v, e := ToSql(f)
+	q, v, e := ToSQL(f)
 	assert.Nil(t, e)
 	assert.Equal(t, "due > ?", q)
 	assert.ElementsMatch(t, []any{now}, v)
@@ -147,7 +147,7 @@ func TestToSqlInWrongType(t *testing.T) {
 		Tags: &tags,
 	}
 
-	_, _, e := ToSql(f)
+	_, _, e := ToSQL(f)
 	assert.NotNil(t, e)
 	assert.ErrorContainsf(t, e, "slice or array; got string", "wrong error")
 }

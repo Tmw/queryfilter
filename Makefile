@@ -5,9 +5,9 @@ COVERAGE_FILENAME ?= ".coverage"
 test:
 	$(if $(GOTESTSUM_PATH), @gotestsum --, @go test) -v -race -count=1 ./...
 
-.PHONY: run
-run:
-	@go run cmd/main.go
+.PHONY: lint
+lint:
+	@golangci-lint run -c .golangci.yml
 
 .PHONY: coverage
 coverage:
