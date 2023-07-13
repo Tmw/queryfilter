@@ -4,7 +4,15 @@ Construct parameterized SQL `where` clauses using Go structs.
 
 ## Installing
 
-t.b.d
+```golang
+import (
+    qf "github.com/tmw/queryfilter"
+)
+```
+
+```console
+go get github.com/tmw/queryfilter
+```
 
 ## Usage
 
