@@ -216,12 +216,19 @@ func buildClauses(f any) ([]Clause, error) {
 			Op:  operator,
 			Val: val,
 
-			// store the reflected value for later use
-			reflectedValue: rawValue.Elem(),
+			// store the dereferenced reflected value for later use
+			reflectedValue: derefIfApplicable(rawValue),
 		}
 	}
 
 	return clauses, nil
+}
+
+func derefIfApplicable(v reflect.Value) reflect.Value {
+	if v.Kind() == reflect.Ptr {
+		return v.Elem()
+	}
+	return v
 }
 
 func readValue(v reflect.Value) (any, error) {

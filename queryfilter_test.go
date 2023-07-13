@@ -29,7 +29,28 @@ func TestToSqlSimpleTypes(t *testing.T) {
 	assert.ElementsMatch(t, ev, v)
 }
 
-func TestToSqlWithSlice(t *testing.T) {
+func ToSQLSimpleTypesNoPointers(t *testing.T) {
+	type filter struct {
+		Name   string `filter:"name,op=eq"`
+		MinAge int    `filter:"age,op=gt"`
+	}
+
+	name, minAge := "bobby", int(42)
+	f := filter{
+		Name:   name,
+		MinAge: minAge,
+	}
+
+	q, v, e := ToSQL(f)
+	eq := `name = ? AND age > ?`
+	ev := []any{"bobby", int64(minAge)}
+
+	assert.Nil(t, e)
+	assert.EqualValues(t, eq, q)
+	assert.ElementsMatch(t, ev, v)
+}
+
+func ToSQLWithSlice(t *testing.T) {
 	type filter struct {
 		Colors *[]string `filter:"color,op=in"`
 	}
