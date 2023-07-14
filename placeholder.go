@@ -5,7 +5,11 @@ import (
 	"strings"
 )
 
-// PlaceholderList generates a list of n placeholder symbols (?)
+// PlaceholderList generates a list of n placeholder symbols (?) as a comma separated string.
+// eg: PlaceholderList(3) => "?,?,?".
+//
+// note that these placeholders are internal only and will be replaced by the placeholders
+// configured by the PlaceholderStrategy when calling ToSQL.
 func PlaceholderList(n int) string {
 	if n == 1 {
 		return "?"

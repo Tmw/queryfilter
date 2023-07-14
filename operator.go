@@ -5,6 +5,18 @@ import (
 	"reflect"
 )
 
+// Operator is a function that receives a clause and returns the query segment
+// as a string and a slice of values.
+//
+// Custom operators can be defined by assigning them by name to the global
+// Operators map, eg:
+//
+// queryfilter.Operators["my-operator"] = func(c Clause) (string, []any, error) {...}
+// which can then be used in a filter struct:
+//
+//	type filter struct {
+//		Age *int `filter:"age,op=my-operator"`
+//	}
 type Operator func(c Clause) (string, []any, error)
 
 func init() {
@@ -67,6 +79,11 @@ func init() {
 	}
 }
 
+// SimpleOperator is a shorthand function for creating operators with a one-to-one matching
+// between column and value. Examples of these are eq, gt, gte without any custom logic.
+//
+// eg: SimpleOperator("> ?") will return a function that will return the query segment "> ?"
+// and the value of the Clause struct as the argument.
 func SimpleOperator(r string) Operator {
 	return func(c Clause) (string, []any, error) {
 		return r, []any{c.Val}, nil

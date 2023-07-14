@@ -7,18 +7,31 @@ import (
 	"time"
 )
 
-type ChainingStrategyType string
+// ChainingStrategy defines how clauses are glued together in the resulting querystring.
+// Eg: using an `OR` statement or an `AND` statement.
+// possible options are ChainStrategyOr and ChainStrategyAnd.
+type ChainingStrategy string
 
 const (
-	ChainingStrategyOr  ChainingStrategyType = "OR"
-	ChainingStrategyAnd ChainingStrategyType = "AND"
+	ChainingStrategyOr  ChainingStrategy = "OR"
+	ChainingStrategyAnd ChainingStrategy = "AND"
 )
 
+// PlaceholderStrategy defines how placeholders are defined in the resulting querystring.
+// for example working with MySQL based databases you would want to use PlaceholderStrategyQuestionmark
+// as the resulting querystring would include a single questionmark as a placeholder
 type PlaceholderStrategy int
 
 const (
+	// PlaceholderStrategyQuestionmark will insert a single questionmark as a placeholder.
+	// this option is best suited for MySQL / MariaDB / SQLite databases.
 	PlaceholderStrategyQuestionmark PlaceholderStrategy = iota
+
+	// PlaceholderStrategyColon will insert a positional placeholder using a colon (:1, :2, etc)
 	PlaceholderStrategyColon
+
+	// PlaceholderStrategyDollar will insert a positional placeholder using a dollar sign ($1, $2, etc).
+	// Most commonly used with PostgreSQL databases.
 	PlaceholderStrategyDollar
 )
 
@@ -28,32 +41,39 @@ var (
 	// `queryFilter.TagName`, eg: `queryFilter.TagName = "qf"` to the value you desire.
 	TagName = "filter"
 
-	// Operators is a globally defined map of available operators
+	// Operators is a globally defined map of available operators.
+	// See the Operator type for more info.
 	Operators = map[string]Operator{}
 
-	// DefaultChainingStrategy defined if clauses are glued together using an `OR` statement
-	// of an `AND` statement. We default to using `AND` but can be configured to match
-	// desired behavior.
+	// DefaultChainingStrategy defines how clauses are glued together. Eg: using an `OR` statement
+	// or an `AND` statement. Default to using `AND` but can be configured either globally or
+	// on an individual basis when calling `ToSQL`.
 	DefaultChainingStrategy = ChainingStrategyAnd
 
-	// DefaultPlaceholderStrategy defined how we define placeholders in the resulting
-	// query. Eg: PlaceholderStategyQuestionmark inserts a single questionmark as a placeholder.
-	// this is being used in MySQL / MariaDB / SQLite databases. Whereas PlaceholderStrategyDollar will
-	// insert a numbered dollarsign ($1, $2, etc) best used with a PostgreSQL database.
+	// DefaultPlaceholderStrategy configures how we define placeholders in the resulting query.
 	//
-	// It defaults to PlaceholderStategyQuestionmark.
+	// This can be configured globally or on an individual basis when calling `ToSQL`.
+	// It defaults to PlaceholderStategyQuestionmark but is configurable either globally or
+	// on an individual basis when calling `ToSQL`.
 	DefaultPlaceholderStrategy = PlaceholderStrategyQuestionmark
 
-	// some of the placeholder stategies require an integer value associated with it.
-	// eg: $1, $2, $3 etc. Because we don't want to make assumtions on the rest of your query,
-	// you are able to set the placeholder query offset.
+	// Some of the placeholder stategies are indexed (eg: $1, $2, $3, etc..)
+	// To avoid clashes with the rest of your query, the starting index is configurable using this option.
 	//
-	// It defaults to 1.
-	DefaultPlaceholderStategyNumberingOffset = 1
+	// It defaults to 1 but is configurable either globally or on an individual basis when calling `ToSQL`.
+	DefaultPlaceholderStategyIndexOffset = 1
 )
 
+// Opts defines the options that are used when running `ToSQL`.
+// the opts are constructed everytime `ToSQL` is called and can be configured through the defaults
+// defined globally on this module or overwritten on a case-by-case basis when calling `ToSQL` through the
+// use of the `OptFn` type.
+//
+// eg: to set the chaining strategy to `OR` for this call only:
+//
+//	_, _, _ := ToSQL(filter, WithChainingStrategy(ChainingStrategyOr))
 type Opts struct {
-	ChainingStrategy    ChainingStrategyType
+	ChainingStrategy    ChainingStrategy
 	PlaceholderStrategy PlaceholderStrategy
 	PlaceholderOffset   int
 }
@@ -62,13 +82,13 @@ func DefaultOpts() *Opts {
 	return &Opts{
 		ChainingStrategy:    DefaultChainingStrategy,
 		PlaceholderStrategy: DefaultPlaceholderStrategy,
-		PlaceholderOffset:   DefaultPlaceholderStategyNumberingOffset,
+		PlaceholderOffset:   DefaultPlaceholderStategyIndexOffset,
 	}
 }
 
 type OptFn = func(o *Opts)
 
-func WithChainingStrategy(typ ChainingStrategyType) OptFn {
+func WithChainingStrategy(typ ChainingStrategy) OptFn {
 	return func(o *Opts) {
 		o.ChainingStrategy = typ
 	}
