@@ -23,7 +23,9 @@ const (
 )
 
 var (
-	// TagName defines the struct tag we look for in the structs we're parsing
+	// TagName defines the struct tag we look for in the structs we're parsing,
+	// eg: the `filter` in `filter:"name,op=eq"`. It can be configured by setting
+	// `queryFilter.TagName`, eg: `queryFilter.TagName = "qf"` to the value you desire.
 	TagName = "filter"
 
 	// Operators is a globally defined map of available operators
@@ -49,38 +51,6 @@ var (
 	// It defaults to 1.
 	DefaultPlaceholderStategyNumberingOffset = 1
 )
-
-type Clause struct {
-	// Col describes the database column the operation works on.
-	Col string
-
-	// Op describes what operation to use on the column
-	Op string
-
-	// Val holds the value the operation is performed with
-	Val any
-
-	// reflected value of the Val field
-	reflectedValue reflect.Value
-}
-
-func (c *Clause) AssertTypeOneOf(kinds ...reflect.Kind) error {
-	actualKind := c.reflectedValue.Kind()
-
-	// do the actual matching
-	for _, k := range kinds {
-		if k == actualKind {
-			return nil
-		}
-	}
-
-	return fmt.Errorf(
-		"expected %s; got %s for operation %s",
-		summarize(kinds...),
-		actualKind,
-		c.Op,
-	)
-}
 
 type Opts struct {
 	ChainingStrategy    ChainingStrategyType
