@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func ToSQLSimpleTypes(t *testing.T) {
+func TestToSQLSimpleTypes(t *testing.T) {
 	type filter struct {
 		Name   *string `filter:"name,op=eq"`
 		MinAge *int    `filter:"age,op=gt"`
@@ -29,7 +29,7 @@ func ToSQLSimpleTypes(t *testing.T) {
 	assert.ElementsMatch(t, ev, v)
 }
 
-func ToSQLSimpleTypesNoPointers(t *testing.T) {
+func TestToSQLSimpleTypesNoPointers(t *testing.T) {
 	type filter struct {
 		Name   string `filter:"name,op=eq"`
 		MinAge int    `filter:"age,op=gt"`
@@ -50,7 +50,7 @@ func ToSQLSimpleTypesNoPointers(t *testing.T) {
 	assert.ElementsMatch(t, ev, v)
 }
 
-func ToSQLWithSlice(t *testing.T) {
+func TestToSQLWithSlice(t *testing.T) {
 	type filter struct {
 		Colors *[]string `filter:"color,op=in"`
 	}
@@ -73,7 +73,7 @@ func ToSQLWithSlice(t *testing.T) {
 	assert.ElementsMatch(t, ev, v)
 }
 
-func ToSQLBetween(t *testing.T) {
+func TestToSQLBetween(t *testing.T) {
 	type filter struct {
 		PriceRange *[]float64 `filter:"price,op=between"`
 	}
@@ -87,7 +87,7 @@ func ToSQLBetween(t *testing.T) {
 	assert.ElementsMatch(t, []float64{10.21, 30.66}, v)
 }
 
-func ToSQLIsNull(t *testing.T) {
+func TestToSQLIsNull(t *testing.T) {
 	type filter struct {
 		TitleEmpty *bool `filter:"title,op=is-null"`
 	}
@@ -114,7 +114,7 @@ func ToSQLIsNull(t *testing.T) {
 	}
 }
 
-func ToSQLIsNotNull(t *testing.T) {
+func TestToSQLIsNotNull(t *testing.T) {
 	t.Parallel()
 	type filter struct {
 		TitleEmpty *bool `filter:"title,op=not-null"`
@@ -142,7 +142,7 @@ func ToSQLIsNotNull(t *testing.T) {
 	}
 }
 
-func ToSQLWithDate(t *testing.T) {
+func TestToSQLWithDate(t *testing.T) {
 	type filter struct {
 		DueBy *time.Time `filter:"due,op=gt"`
 	}
@@ -159,6 +159,7 @@ func ToSQLWithDate(t *testing.T) {
 }
 
 func ToSQLInWrongType(t *testing.T) {
+func TestToSQLInWrongType(t *testing.T) {
 	type filter struct {
 		Tags *string `filter:"title,op=in"`
 	}
