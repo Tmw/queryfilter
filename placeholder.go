@@ -11,7 +11,7 @@ import (
 // note that these placeholders are internal only and will be replaced by the placeholders
 // configured by the PlaceholderStrategy when calling ToSQL.
 func PlaceholderList(n int) string {
-	if n == 1 {
+	if n == 0 || n == 1 {
 		return "?"
 	}
 

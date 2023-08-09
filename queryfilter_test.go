@@ -158,7 +158,20 @@ func TestToSQLWithDate(t *testing.T) {
 	assert.ElementsMatch(t, []any{now}, v)
 }
 
-func ToSQLInWrongType(t *testing.T) {
+func TestToSQLWithEmptySlices(t *testing.T) {
+	type filter struct {
+		Colors []string `filter:"color,op=in"`
+	}
+
+	f := filter{}
+
+	q, v, e := ToSQL(f)
+
+	assert.Nil(t, e)
+	assert.Equal(t, "color IN(?)", q)
+	assert.ElementsMatch(t, []any{}, v)
+}
+
 func TestToSQLInWrongType(t *testing.T) {
 	type filter struct {
 		Tags *string `filter:"title,op=in"`

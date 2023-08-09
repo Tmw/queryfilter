@@ -45,3 +45,20 @@ func TestReplace_ColonReplacer(t *testing.T) {
 
 	assert.Equal(t, e, q)
 }
+
+func TestPlaceholderList(t *testing.T) {
+	table := []struct {
+		num    int
+		expect string
+	}{
+		{0, "?"},
+		{1, "?"},
+		{2, "?,?"},
+		{3, "?,?,?"},
+		{4, "?,?,?,?"},
+	}
+
+	for _, tc := range table {
+		assert.Equal(t, tc.expect, PlaceholderList(tc.num))
+	}
+}
