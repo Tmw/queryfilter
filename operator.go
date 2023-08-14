@@ -31,8 +31,14 @@ func init() {
 				return "", nil, err
 			}
 
+			// early return when passed slice is empty
+			if c.reflectedValue.Len() == 0 {
+				return "IN(NULL)", []any{}, nil
+			}
+
 			placeholders := PlaceholderList(c.reflectedValue.Len())
 			elems, err := readSliceElems(c.reflectedValue)
+
 			if err != nil {
 				return "", nil, err
 			}
@@ -41,6 +47,11 @@ func init() {
 		"not-in": func(c Clause) (string, []any, error) {
 			if err := c.AssertTypeOneOf(reflect.Slice, reflect.Array); err != nil {
 				return "", nil, err
+			}
+
+			// early return when passed slice is empty
+			if c.reflectedValue.Len() == 0 {
+				return "NOT IN(NULL)", []any{}, nil
 			}
 
 			placeholders := PlaceholderList(c.reflectedValue.Len())
@@ -53,6 +64,10 @@ func init() {
 		"between": func(c Clause) (string, []any, error) {
 			if err := c.AssertTypeOneOf(reflect.Slice, reflect.Array); err != nil {
 				return "", nil, err
+			}
+
+			if c.reflectedValue.Len() < 2 {
+				return "", nil, fmt.Errorf("operation between expects two elements in its slice")
 			}
 
 			elems, err := readSliceElems(c.reflectedValue)

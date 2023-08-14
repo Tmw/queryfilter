@@ -73,10 +73,29 @@ func TestToSQLWithSlice(t *testing.T) {
 	assert.ElementsMatch(t, ev, v)
 }
 
+func TestToSQLWithEmptySlice(t *testing.T) {
+	type filter struct {
+		Colors []string `filter:"color,op=in"`
+		Brands []string `filter:"brand,op=not-in"`
+	}
+
+	f := filter{}
+
+	q, v, e := ToSQL(f)
+	eq := `color IN(NULL) AND brand NOT IN(NULL)`
+	ev := []any{}
+
+	assert.Nil(t, e)
+	assert.EqualValues(t, eq, q)
+	assert.Empty(t, v)
+	assert.ElementsMatch(t, ev, v)
+}
+
 func TestToSQLBetween(t *testing.T) {
 	type filter struct {
 		PriceRange *[]float64 `filter:"price,op=between"`
 	}
+
 	f := filter{
 		PriceRange: &[]float64{10.21, 30.66},
 	}
@@ -85,6 +104,20 @@ func TestToSQLBetween(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, "price BETWEEN ? AND ?", q)
 	assert.ElementsMatch(t, []float64{10.21, 30.66}, v)
+}
+
+func TestToSQLBetweenNotEnoughParams(t *testing.T) {
+	type filter struct {
+		PriceRange *[]float64 `filter:"price,op=between"`
+	}
+	f2 := filter{
+		PriceRange: &[]float64{},
+	}
+
+	q, v, e := ToSQL(f2)
+	assert.Errorf(t, e, "between expects two elements in its slice")
+	assert.Equal(t, "", q)
+	assert.ElementsMatch(t, []float64{}, v)
 }
 
 func TestToSQLIsNull(t *testing.T) {
@@ -156,20 +189,6 @@ func TestToSQLWithDate(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, "due > ?", q)
 	assert.ElementsMatch(t, []any{now}, v)
-}
-
-func TestToSQLWithEmptySlices(t *testing.T) {
-	type filter struct {
-		Colors []string `filter:"color,op=in"`
-	}
-
-	f := filter{}
-
-	q, v, e := ToSQL(f)
-
-	assert.Nil(t, e)
-	assert.Equal(t, "color IN(?)", q)
-	assert.ElementsMatch(t, []any{}, v)
 }
 
 func TestToSQLInWrongType(t *testing.T) {
