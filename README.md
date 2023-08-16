@@ -57,6 +57,24 @@ make example-mysql
 make example-postgres
 ```
 
+## Built-in operators
+Out of the box QueryFilter comes with a few operators built-in. However adding your
+own custom operators is quite trivial. See examples in [operator.go](./operator.go).
+
+The built-in operators are:
+| `op` name       | SQL equivalent			   | Notes						   |
+|-----------------|----------------------------|-------------------------------|
+| `eq`            | `=`						   |							   |
+| `gt`            | `>`						   |							   |
+| `gte`           | `>=`					   |							   |
+| `lt`            | `<`						   |							   |
+| `lte`           | `<=`					   |							   |
+| `in`            | `IN(?)`					   | Works on slices/arrays        |
+| `not-in`        | `NOT IN(?)`                | works on slices/arrays        |
+| `between`       | `BETWEEN ? AND ?`          | Works on slices/arrays of length 2|
+| `is-null`       | `IS NULL` / `IS NOT NULL`  | Works on boolean types. Uses null/not null when passing true/false respectively|
+| `not-null`      | `IS NOT NULL` / `IS NULL`  | Works on boolean types. Uses not null/null when passing true/false respectively|
+
 ## Other commands
 
 ```console
