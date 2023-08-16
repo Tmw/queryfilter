@@ -44,6 +44,9 @@ query = fmt.Sprintf("SELECT * FROM tshirts WHERE %s", query)
 rows, err := db.Query(query, params...)
 ```
 
+## Example implementation
+For an example implementation of a T-shirt store API, [head over here](https://github.com/tmw/queryfilter-example).
+
 ## Running examples
 
 ```console
