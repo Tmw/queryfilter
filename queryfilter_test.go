@@ -52,24 +52,27 @@ func TestToSQLSimpleTypesNoPointers(t *testing.T) {
 
 func TestToSQLWithSlice(t *testing.T) {
 	type filter struct {
-		Colors *[]string `filter:"color,op=in"`
+		Colors []string `filter:"color,op=in"`
+		Brands []string `filter:"brand,op=not-in"`
 	}
 
 	f := filter{
-		Colors: &[]string{
+		Colors: []string{
 			"yellow",
 			"orange",
 			"hot-pink",
 		},
+		Brands: []string{
+			"wrong-brand",
+		},
 	}
 
 	q, v, e := ToSQL(f)
-	eq := `color IN(?,?,?)`
-	ev := []any{"yellow", "orange", "hot-pink"}
+	eq := `color IN(?,?,?) AND brand NOT IN(?)`
+	ev := []any{"yellow", "orange", "hot-pink", "wrong-brand"}
 
 	assert.Nil(t, e)
 	assert.EqualValues(t, eq, q)
-	assert.Len(t, v, 3)
 	assert.ElementsMatch(t, ev, v)
 }
 
