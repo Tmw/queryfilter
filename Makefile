@@ -1,5 +1,6 @@
 GOTESTSUM_PATH ?= $(shell which gotestsum)
-COVERAGE_FILENAME ?= ".coverage"
+COVERAGE_FILENAME ?= "coverage.out"
+HTML_FILENAME := $(subst .out,.html,$(COVERAGE_FILENAME))
 
 .PHONY: test
 test:
@@ -9,11 +10,17 @@ test:
 lint:
 	@golangci-lint run -c .golangci.yml
 
-.PHONY: coverage
 coverage:
-	@go test -coverprofile $(COVERAGE_FILENAME).out ./...
-	@go tool cover -html=coverage.out
-	@echo "generated coverage: file://$$(pwd)/$(coverage_filename).html"
+	@go test -coverprofile $(COVERAGE_FILENAME) ./...
+
+.PHONY: coverage-html
+coverage-html: coverage
+	@go tool cover -html=$(COVERAGE_FILENAME)
+	@echo "generated coverage: file://$$(pwd)/$(HTML_FILENAME)"
+
+.PHONY: coverage-term
+coverage-term: coverage
+	gocovsh
 
 .PHONY: watch
 watch:
