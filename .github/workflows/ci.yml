@@ -3,26 +3,37 @@ name: CI
 on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.18", "1.19", "1.20", "1.21"]
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Go
+      - name: set up go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.18'
-
-      - name: Format code
-        uses: Jerome1337/gofmt-action@v1.0.5
+          go-version: ${{matrix.go-version}}
 
       - name: Setup gotestsum
         run: go install gotest.tools/gotestsum@latest
+
+      - name: Test
+        run: make test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+
+      - name: Format code
+        uses: Jerome1337/gofmt-action@v1.0.5
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.53
-
-      - name: Test
-        run: make test
